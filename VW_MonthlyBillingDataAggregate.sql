@@ -1,19 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 6/12/2015 1:48:11 PM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 8/11/2015 8:04:18 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
-
-
-
-
 
 
 
@@ -58,10 +51,13 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 	left join Branch on MonthlyBillingData.BranchId = Branch.BranchId
 	Left Join Network N on MonthlyBillingData.AccountId=N.AccountId
 	where MonthlyBillingData.ProductSku<>0
+	and product.ProductCategoryId<>'PrePay'
   	GROUP BY --Id, 
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
 	AdditionalInfo, Region, City,[State], Country, 	BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
 	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens
+
+
 
 
 
