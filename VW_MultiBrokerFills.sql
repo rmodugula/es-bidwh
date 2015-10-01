@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_MultiBrokerFills]    Script Date: 04/15/2014 13:33:51 ******/
+/****** Object:  View [dbo].[VW_MultiBrokerFills]    Script Date: 10/1/2015 11:49:57 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -13,7 +13,7 @@ GO
 
 
 
-ALTER VIEW [dbo].[VW_MultiBrokerFills] 
+Alter VIEW [dbo].[VW_MultiBrokerFills] 
 as
 
 	SELECT
@@ -49,6 +49,7 @@ as
 , z.Orderdescription
 , z.Isbillable
 , z.Fill
+,[Platform]
 
 FROM
 (
@@ -73,6 +74,7 @@ FROM
     , e.[description] as Orderdescription
     , e.Isbillable
     , e.fill AS Fill
+	,[Platform]
 
     FROM
     (
@@ -96,6 +98,7 @@ FROM
         , d.Isbillable
         , d.[Description]
         , Isnull(d.fill, 0)AS Fill
+		,[Platform]
 
         FROM
         (
@@ -134,6 +137,7 @@ FROM
             , c.fill
             , c.exchange
             , d.[description]
+			,[Platform]
 
             FROM
             (
@@ -183,9 +187,10 @@ FROM
                     , DayofMonth
                     , Day(TransactionDate) as Day
                     , Isbillable
+					,[Platform]
                     , Fills AS Fill
 
-                    FROM [dbo].[fills]
+                    FROM [dbo].[fills] 
 
                     WHERE networkid = 1104
                       and MarketId not in (84,85,88)
@@ -250,6 +255,7 @@ SELECT
 , Y.[Description]
 , y.Isbillable
 , y.Fill
+,[Platform]
 
 FROM
 (
@@ -274,6 +280,7 @@ FROM
     , a2.[Description]
     , a1.Isbillable
     , a1.Fill
+	,[Platform]
 
     FROM
     (
@@ -302,6 +309,7 @@ FROM
             ,a.FunctionalityArea
             , a.Isbillable
             , a.fill
+			,[Platform]
 
             FROM
             (
@@ -346,6 +354,7 @@ FROM
                 , Day(TransactionDate) as Day
                 , Isbillable
                 , Fills AS Fill
+				,[Platform]
 
                 FROM [dbo].[fills]
 
