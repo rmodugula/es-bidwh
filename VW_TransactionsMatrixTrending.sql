@@ -1,12 +1,13 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 9/19/2014 11:38:06 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 10/1/2015 11:40:54 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -20,7 +21,7 @@ select Year,Month,MonthName,count(UserName) as NumberOfTraders,case when Exchang
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus
 SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags,LastOrderSource,
-FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,Region
+FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,Region,[Platform]
 --,CustomField1,CustomField2,CustomField3 
 from 
 (
@@ -44,7 +45,7 @@ end as [MonthName]
 ,NetworkName,MarketName,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
-,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,region
+,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,region,[Platform]
  from (select * from dbo.Fills where AccountId<>'C100271') F
 left join dbo.Exchange E on F.ExchangeId=E.ExchangeId
 left join dbo.Account A on F.AccountId=A.Accountid
@@ -60,8 +61,9 @@ on u.CountryCode=r.Country
 group by Year, Month, MonthName,ExchangeName,ExchangeFlavor, NetworkName, MarketName, MasterAccountName, AccountName,
 CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags, 
 --ProductType, ProductName, FillType, FillStatus
-LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea
+LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform]
 --, CustomField1, CustomField2, CustomField3
+
 
 
 

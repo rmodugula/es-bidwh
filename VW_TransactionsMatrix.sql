@@ -1,12 +1,13 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 9/19/2014 11:35:33 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 10/1/2015 11:39:18 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -18,7 +19,7 @@ select Year,Month,MonthName,UserName,FullName,TransactionDate,case when Exchange
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus,
 SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags,LastOrderSource,
-FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region from 
+FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,[Platform] from 
 (
 select 
 F.Year,F.Month, 
@@ -40,7 +41,7 @@ end as [MonthName]
 ,NetworkName,MarketName,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
-,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region
+,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,[Platform]
  from (select * from dbo.Fills where AccountId<>'C100271') F
 left join dbo.Exchange E on F.ExchangeId=E.ExchangeId
 left join dbo.Account A on F.AccountId=A.Accountid
@@ -58,7 +59,8 @@ group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeNam
  CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags, 
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
- FunctionalityArea, CustomField1, CustomField2, CustomField3,Region
+ FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform]
+
 
 
 
