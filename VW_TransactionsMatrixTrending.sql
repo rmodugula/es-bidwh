@@ -1,12 +1,14 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 10/22/2015 10:41:11 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 10/27/2015 10:13:13 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
+
 
 
 ALTER VIEW [dbo].[VW_TransactionsMatrixTrending] 
@@ -36,7 +38,7 @@ when 10 then 'Oct'
 when 11 then 'Nov'
 when 12 then 'Dec'
 end as [MonthName]
-,F.UserName,U.FullName,ExchangeName,E.ExchangeFlavor
+,F.UserName,U.FullName,case when f.networkid=1 then MarketName else ExchangeName End as ExchangeName,E.ExchangeFlavor
 ,NetworkName,MarketName,f.AccountId,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
@@ -53,13 +55,15 @@ left join
 (select distinct Country, Region from RegionMap)R
 on u.CountryCode=r.Country
 )Q
- where AccountId<>'C100271'
+ --where AccountId<>'C100271'
 --where YEAR=2014
 group by Year, Month, MonthName,ExchangeName,ExchangeFlavor, NetworkName, MarketName, MasterAccountName, AccountName,
 CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags, 
 --ProductType, ProductName, FillType, FillStatus
 LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform]
 --, CustomField1, CustomField2, CustomField3
+
+
 
 
 
