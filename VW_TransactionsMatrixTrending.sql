@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 10/27/2015 10:13:13 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 10/29/2015 2:20:44 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -11,10 +11,13 @@ GO
 
 
 
+
+
 ALTER VIEW [dbo].[VW_TransactionsMatrixTrending] 
 as
 
-select Year,Month,MonthName,count(UserName) as NumberOfTraders,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName,MarketName,MasterAccountName,AccountName,
+select Year,Month,MonthName,count(UserName) as NumberOfTraders,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName
+,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,MasterAccountName,AccountName,
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus
 SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags,LastOrderSource,
@@ -38,7 +41,7 @@ when 10 then 'Oct'
 when 11 then 'Nov'
 when 12 then 'Dec'
 end as [MonthName]
-,F.UserName,U.FullName,case when f.networkid=1 then MarketName else ExchangeName End as ExchangeName,E.ExchangeFlavor
+,F.UserName,U.FullName,MarketName as ExchangeName,E.ExchangeFlavor
 ,NetworkName,MarketName,f.AccountId,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
@@ -62,6 +65,8 @@ CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags,
 --ProductType, ProductName, FillType, FillStatus
 LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform]
 --, CustomField1, CustomField2, CustomField3
+
+
 
 
 

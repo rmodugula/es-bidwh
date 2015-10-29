@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 10/27/2015 9:48:29 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 10/29/2015 2:20:39 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -9,10 +9,15 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
+
+
+
+
 ALTER VIEW [dbo].[VW_TransactionsMatrix] 
 as
 
-select Year,Month,MonthName,UserName,FullName,TransactionDate,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName,MarketName,MasterAccountName,AccountName,
+select Year,Month,MonthName,UserName,FullName,TransactionDate,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName
+,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,MasterAccountName,AccountName,
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus,
 SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags,LastOrderSource,
@@ -34,7 +39,7 @@ when 10 then 'Oct'
 when 11 then 'Nov'
 when 12 then 'Dec'
 end as [MonthName]
-,F.UserName,U.FullName,TransactionDate,case when f.networkid=1 then MarketName else ExchangeName End as ExchangeName,E.ExchangeFlavor
+,F.UserName,U.FullName,TransactionDate,MarketName as ExchangeName,E.ExchangeFlavor
 ,NetworkName,MarketName,f.Accountid,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
@@ -60,6 +65,10 @@ group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeNam
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
  FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform]
+
+
+
+
 
 
 
