@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_MultiBrokerFills]    Script Date: 10/1/2015 11:49:57 AM ******/
+/****** Object:  View [dbo].[VW_MultiBrokerFills]    Script Date: 10/30/2015 11:21:39 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -10,10 +10,7 @@ GO
 
 
 
-
-
-
-Alter VIEW [dbo].[VW_MultiBrokerFills] 
+ALTER VIEW [dbo].[VW_MultiBrokerFills] 
 as
 
 	SELECT
@@ -143,7 +140,7 @@ FROM
             (
                 SELECT
                   a.*
-                , b.exchangeflavor AS exchange
+                , b.MarketName AS exchange
 
                 FROM
                 (
@@ -152,36 +149,14 @@ FROM
                     ,MONTH
                     , UserName
                     , exchangeid
+					, Marketid
                     , [networkid]
                     , [AxProductId]
                     , lastordersource
                     , firstordersource
                     , OrderSourceHistory
-                      ,CASE WHEN [OrderSourceHistory] like '%15%' THEN 'MDT' ELSE 'non-MDT' END as MDT
-      ,CASE 
-            WHEN [FirstOrderSource] = 9 OR ([OrderSourceHistory] like '%09%' AND ([OrderSourceHistory] like '%11%' OR [OrderSourceHistory] like '%12%' OR [OrderSourceHistory] like '%19%' OR [OrderSourceHistory] like '%21%')) THEN 'Autospreader - ServerSide'
-            WHEN [OrderSourceHistory] like '%01%' THEN 'Autospreader - Desktop' 
-            WHEN [OrderSourceHistory] like '%22%' or ([OrderSourceHistory] like '%12%' and [OrderSourceHistory] not like '%09%') THEN 'AlgoSE' 
-            WHEN [OrderSourceHistory] like '%02%' THEN 'Autotrader' 
-            WHEN [FirstOrderSource] IN (6,23) THEN 'FIX Adapter'
-            WHEN [OrderSourceHistory] like '%20%' OR [OrderSourceHistory] like '%24%' THEN 'SSE' 
-            WHEN [FirstOrderSource] = 3 THEN 'XTAPI'
-            WHEN [FirstOrderSource] IN (11,21) THEN 'XTAPI XT Mode'
-            WHEN OrderSourceHistory NOT LIKE '%24%'
-            AND  OrderSourceHistory NOT LIKE '%23%'
-            AND  OrderSourceHistory NOT LIKE '%22%'
-            AND  OrderSourceHistory NOT LIKE '%21%'      
-            AND  OrderSourceHistory NOT LIKE '%20%'
-            AND  OrderSourceHistory NOT LIKE '%19%'
-            AND  OrderSourceHistory NOT LIKE '%12%'
-            AND  OrderSourceHistory NOT LIKE '%11%'                                    
-            AND  OrderSourceHistory NOT LIKE '%09%'                                                                                   
-            AND  OrderSourceHistory NOT LIKE '%01%'                                                                                                                                   
-            AND  OrderSourceHistory NOT LIKE '%02%'                                     
-            AND  OrderSourceHistory NOT LIKE '%06%'                           
-			THEN 'Non-Automated' 
-			ELSE 'Needs a rule'
-		END as 'FunctionalityArea'
+                      ,MDT
+      ,FunctionalityArea
                     , [brokerid]
                     , [companyid]
                     , DayofMonth
@@ -198,8 +173,8 @@ FROM
 				                )
                  a
 
-                JOIN exchange b
-                 ON a.exchangeid = b.exchangeid
+                LEFT JOIN Market b
+                 ON a.Marketid = b.Marketid
 
             )
             c
@@ -245,7 +220,7 @@ SELECT
 , y.Brokerid
 , 'zInternal Broker' as Companyname
 , y.Companyid
-, rtrim(case when y.iphen=0 then y.exchangeflavor when y.iphen <>0 then replace(substring(y.exchangeflavor,1,y.iphen),'-','') when y.exchangeflavor='LIFFE-EO' then 'LIFFE-EO' end) as Exchange
+, rtrim(case when y.iphen=0 then y.MarketName when y.iphen <>0 then replace(substring(y.MarketName,1,y.iphen),'-','') when y.MarketName='LIFFE-EO' then 'LIFFE-EO' end) as Exchange
 , y.AxProductId
 , Y.FirstOrderSource
 ,Y.LastOrderSource
@@ -260,7 +235,7 @@ SELECT
 FROM
 (
     SELECT
-      charindex('-',a1.exchangeflavor) AS iphen
+      charindex('-',a1.MarketName) AS iphen
     , a1.Year
     , a1.Month
     , a1.UserName
@@ -271,7 +246,7 @@ FROM
     , a1.AxProductId
     , a1.companyname
     , a1.companyid
-    , a1.exchangeflavor
+    , a1.MarketName
     , a1.FirstOrderSource
     , a1.LastOrderSource
     , a1.OrderSourceHistory
@@ -286,7 +261,7 @@ FROM
     (
         SELECT
           a.*
-        , b.exchangeflavor
+        , b.MarketName
 
         FROM
         (
@@ -302,6 +277,7 @@ FROM
             , b.companyname
             , b.companyid
             , a.exchangeid
+			, a.Marketid
             , a.LastOrderSource
             , a.FirstOrderSource
             ,a.OrderSourceHistory
@@ -318,36 +294,14 @@ FROM
                 ,Month
                 , UserName
                 , exchangeid
+				, Marketid
                 , [networkid]
                 , AxProductId
                 , LastOrderSource
                 , FirstOrderSource
                 , OrderSourceHistory
-                  ,CASE WHEN [OrderSourceHistory] like '%15%' THEN 'MDT' ELSE 'non-MDT' END as MDT
-      ,CASE 
-            WHEN [FirstOrderSource] = 9 OR ([OrderSourceHistory] like '%09%' AND ([OrderSourceHistory] like '%11%' OR [OrderSourceHistory] like '%12%' OR [OrderSourceHistory] like '%19%' OR [OrderSourceHistory] like '%21%')) THEN 'Autospreader - ServerSide'
-            WHEN [OrderSourceHistory] like '%01%' THEN 'Autospreader - Desktop' 
-            WHEN [OrderSourceHistory] like '%22%' or ([OrderSourceHistory] like '%12%' and [OrderSourceHistory] not like '%09%') THEN 'AlgoSE' 
-            WHEN [OrderSourceHistory] like '%02%' THEN 'Autotrader' 
-            WHEN [FirstOrderSource] IN (6,23) THEN 'FIX Adapter'
-            WHEN [OrderSourceHistory] like '%20%' OR [OrderSourceHistory] like '%24%' THEN 'SSE' 
-            WHEN [FirstOrderSource] = 3 THEN 'XTAPI'
-            WHEN [FirstOrderSource] IN (11,21) THEN 'XTAPI XT Mode'
-            WHEN OrderSourceHistory NOT LIKE '%24%'
-            AND  OrderSourceHistory NOT LIKE '%23%'
-            AND  OrderSourceHistory NOT LIKE '%22%'
-            AND  OrderSourceHistory NOT LIKE '%21%'      
-            AND  OrderSourceHistory NOT LIKE '%20%'
-            AND  OrderSourceHistory NOT LIKE '%19%'
-            AND  OrderSourceHistory NOT LIKE '%12%'
-            AND  OrderSourceHistory NOT LIKE '%11%'                                    
-            AND  OrderSourceHistory NOT LIKE '%09%'                                                                                   
-            AND  OrderSourceHistory NOT LIKE '%01%'                                                                                                                                   
-            AND  OrderSourceHistory NOT LIKE '%02%'                                     
-            AND  OrderSourceHistory NOT LIKE '%06%'                           
-			THEN 'Non-Automated' 
-			ELSE 'Needs a rule'
-		END as 'FunctionalityArea'
+                  ,MDT
+      ,FunctionalityArea
                 , [brokerid]
                 , [companyid]
                 , DayofMonth
@@ -370,8 +324,8 @@ FROM
         )
          a
 
-        JOIN dbo.exchange b
-         ON a.exchangeid=b.exchangeid
+        LEFT JOIN dbo.Market b
+         ON a.Marketid=b.Marketid
 
             )
      a1
@@ -379,6 +333,9 @@ FROM
     JOIN dbo.OrderSource a2
      ON a1.LastOrderSource = a2.OrderSourceNumber )
 Y
+
+
+
 
 
 
