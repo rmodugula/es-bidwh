@@ -1,12 +1,16 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 10/29/2015 2:20:44 PM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 2/3/2016 4:08:38 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
+
+
+
 
 
 
@@ -20,8 +24,8 @@ select Year,Month,MonthName,count(UserName) as NumberOfTraders,case when Exchang
 ,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,MasterAccountName,AccountName,
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus
-SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags,LastOrderSource,
-FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,Region,[Platform]
+SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags
+,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,Region,[Platform]
 --,CustomField1,CustomField2,CustomField3 
 from 
 (
@@ -41,7 +45,7 @@ when 10 then 'Oct'
 when 11 then 'Nov'
 when 12 then 'Dec'
 end as [MonthName]
-,F.UserName,U.FullName,MarketName as ExchangeName,E.ExchangeFlavor
+,F.UserName,U.FullName,case when f.[platform]<>'TTWEB' and MarketName='KCG' then 'LSE' else MarketName End as ExchangeName,E.ExchangeFlavor
 ,NetworkName,MarketName,f.AccountId,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
@@ -52,7 +56,7 @@ left join dbo.Account A on F.AccountId=A.Accountid
 left join dbo.Product P on F.AxProductId=P.ProductSku
 left join dbo.Network N on F.NetworkId=N.NetworkId
 left join dbo.Market M on F.MarketId=M.MarketID
-left join (select Username,FullName,Accountid,CountryCode,Platform,CustomField1,CustomField2,CustomField3 from dbo.[user] 
+left join (select distinct Username,FullName,Accountid,CountryCode,Platform,CustomField1,CustomField2,CustomField3 from dbo.[user] 
 where YEAR=YEAR(getdate()) and MONTH=Month(getdate())) U on F.UserName=U.UserName and F.AccountId=U.AccountId and f.platform=u.platform
 left join 
 (select distinct Country, Region from RegionMap)R
@@ -65,6 +69,10 @@ CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags,
 --ProductType, ProductName, FillType, FillStatus
 LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform]
 --, CustomField1, CustomField2, CustomField3
+
+
+
+
 
 
 
