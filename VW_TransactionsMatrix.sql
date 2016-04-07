@@ -1,16 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 2/3/2016 4:08:18 PM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 4/7/2016 11:06:54 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
-
 
 
 
@@ -43,7 +39,7 @@ when 10 then 'Oct'
 when 11 then 'Nov'
 when 12 then 'Dec'
 end as [MonthName]
-,F.UserName,U.FullName,TransactionDate,case when f.[platform]<>'TTWEB' and MarketName='KCG' then 'LSE' else MarketName End as ExchangeName,E.ExchangeFlavor
+,F.UserName,U.FullName,TransactionDate,MarketName as ExchangeName,E.ExchangeFlavor
 ,NetworkName,MarketName,f.Accountid,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
@@ -55,7 +51,7 @@ left join dbo.Exchange E on F.ExchangeId=E.ExchangeId
 left join dbo.Account A on F.AccountId=A.Accountid
 left join dbo.Product P on F.AxProductId=P.ProductSku
 left join dbo.Network N on F.NetworkId=N.NetworkId
-left join dbo.Market M on F.MarketId=M.MarketID
+left join [BIDW].[dbo].[Market] M on F.MarketId=M.MarketID and f.platform=m.platform
 left join (select distinct year, Month, Username,FullName,Accountid,CountryCode,Platform,CustomField1,CustomField2,CustomField3 from dbo.[user]) U 
 on f.year=u.year and f.Month=u.Month and F.UserName=U.UserName and F.AccountId=U.AccountId and f.Platform=u.platform
 left join 
@@ -69,18 +65,6 @@ group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeNam
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
  FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform]
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

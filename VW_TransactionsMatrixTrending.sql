@@ -1,16 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 2/3/2016 4:08:38 PM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 4/7/2016 11:07:15 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
-
 
 
 
@@ -55,7 +51,8 @@ left join dbo.Exchange E on F.ExchangeId=E.ExchangeId
 left join dbo.Account A on F.AccountId=A.Accountid
 left join dbo.Product P on F.AxProductId=P.ProductSku
 left join dbo.Network N on F.NetworkId=N.NetworkId
-left join dbo.Market M on F.MarketId=M.MarketID
+Left join [BIDW].[dbo].[Market] M
+on f.MarketId=m.MarketID and f.platform=m.platform
 left join (select distinct Username,FullName,Accountid,CountryCode,Platform,CustomField1,CustomField2,CustomField3 from dbo.[user] 
 where YEAR=YEAR(getdate()) and MONTH=Month(getdate())) U on F.UserName=U.UserName and F.AccountId=U.AccountId and f.platform=u.platform
 left join 
@@ -69,6 +66,9 @@ CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags,
 --ProductType, ProductName, FillType, FillStatus
 LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform]
 --, CustomField1, CustomField2, CustomField3
+
+
+
 
 
 
