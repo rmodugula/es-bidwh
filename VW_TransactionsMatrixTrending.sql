@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 4/7/2016 11:07:15 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 4/11/2016 11:06:55 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -13,11 +13,12 @@ GO
 
 
 
-ALTER VIEW [dbo].[VW_TransactionsMatrixTrending] 
+Alter VIEW [dbo].[VW_TransactionsMatrixTrending] 
 as
 
 select Year,Month,MonthName,count(UserName) as NumberOfTraders,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName
-,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,MasterAccountName,AccountName,
+,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,case when platform='TTWEB' then isnull(MasterAccountName,companyname) else MasterAccountName end as MasterAccountName
+,case when platform='TTWEB' then isnull(AccountName,companyname) else AccountName end as AccountName,
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus
 SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags
@@ -45,7 +46,7 @@ end as [MonthName]
 ,NetworkName,MarketName,f.AccountId,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
-,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,region,f.[Platform]
+,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,region,f.[Platform],case when f.platform='TTWEB' then tc.Name else c.CompanyName end as CompanyName
  from (select * from dbo.Fills) F
 left join dbo.Exchange E on F.ExchangeId=E.ExchangeId
 left join dbo.Account A on F.AccountId=A.Accountid
@@ -58,13 +59,15 @@ where YEAR=YEAR(getdate()) and MONTH=Month(getdate())) U on F.UserName=U.UserNam
 left join 
 (select distinct Country, Region from RegionMap)R
 on u.CountryCode=r.Country
+Left join (select distinct companyId, companyname from Company) C on f.CompanyId=c.CompanyId
+left join ( select distinct companyId, name from chisql20.mess.dbo.companies) TC on f.CompanyId=tc.companyid
 )Q
  --where AccountId<>'C100271'
 --where YEAR=2014
 group by Year, Month, MonthName,ExchangeName,ExchangeFlavor, NetworkName, MarketName, MasterAccountName, AccountName,
 CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags, 
 --ProductType, ProductName, FillType, FillStatus
-LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform]
+LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform],CompanyName
 --, CustomField1, CustomField2, CustomField3
 
 

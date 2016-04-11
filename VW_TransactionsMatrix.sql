@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 4/7/2016 11:06:54 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 4/11/2016 11:15:25 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,11 +12,13 @@ GO
 
 
 
+
 ALTER VIEW [dbo].[VW_TransactionsMatrix] 
 as
 
 select Year,Month,MonthName,UserName,FullName,TransactionDate,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName
-,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,MasterAccountName,AccountName,
+,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,case when platform='TTWEB' then isnull(MasterAccountName,companyname) else MasterAccountName end as MasterAccountName
+,case when platform='TTWEB' then isnull(AccountName,companyname) else AccountName end as AccountName,
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus,
 SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags
@@ -43,7 +45,7 @@ end as [MonthName]
 ,NetworkName,MarketName,f.Accountid,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
-,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,f.[Platform]
+,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,f.[Platform],case when f.platform='TTWEB' then tc.Name else c.CompanyName end as CompanyName
  from (select * from dbo.Fills 
  --where AccountId<>'C100271'
  ) F
@@ -57,6 +59,9 @@ on f.year=u.year and f.Month=u.Month and F.UserName=U.UserName and F.AccountId=U
 left join 
 (select distinct Country, Region from RegionMap)R
 on u.CountryCode=r.Country
+Left join (select distinct companyId, companyname from Company) C on f.CompanyId=c.CompanyId
+left join ( select distinct companyId, name from chisql20.mess.dbo.companies) TC on f.CompanyId=tc.companyid
+
 )Q
 --where AccountId not in ('C100271')
 --where YEAR=2014 and MONTH=9
@@ -64,7 +69,8 @@ group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeNam
  CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags, 
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
- FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform]
+ FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform],CompanyName
+
 
 
 
