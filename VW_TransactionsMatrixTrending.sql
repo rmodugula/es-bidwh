@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 4/11/2016 11:06:55 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 4/12/2016 11:12:44 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -13,7 +13,8 @@ GO
 
 
 
-Alter VIEW [dbo].[VW_TransactionsMatrixTrending] 
+
+ALTER VIEW [dbo].[VW_TransactionsMatrixTrending] 
 as
 
 select Year,Month,MonthName,count(UserName) as NumberOfTraders,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName
@@ -46,7 +47,7 @@ end as [MonthName]
 ,NetworkName,MarketName,f.AccountId,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
-,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,region,f.[Platform],case when f.platform='TTWEB' then tc.Name else c.CompanyName end as CompanyName
+,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,region,f.[Platform],case when f.platform='TTWEB' then tc.companyname else c.CompanyName end as CompanyName
  from (select * from dbo.Fills) F
 left join dbo.Exchange E on F.ExchangeId=E.ExchangeId
 left join dbo.Account A on F.AccountId=A.Accountid
@@ -60,7 +61,7 @@ left join
 (select distinct Country, Region from RegionMap)R
 on u.CountryCode=r.Country
 Left join (select distinct companyId, companyname from Company) C on f.CompanyId=c.CompanyId
-left join ( select distinct companyId, name from chisql20.mess.dbo.companies) TC on f.CompanyId=tc.companyid
+left join ( select distinct companyId, companyname from dbo.ttcompanies) TC on f.CompanyId=tc.companyid
 )Q
  --where AccountId<>'C100271'
 --where YEAR=2014
@@ -69,6 +70,7 @@ CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags,
 --ProductType, ProductName, FillType, FillStatus
 LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform],CompanyName
 --, CustomField1, CustomField2, CustomField3
+
 
 
 

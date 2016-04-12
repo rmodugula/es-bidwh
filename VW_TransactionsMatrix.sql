@@ -1,12 +1,13 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 4/11/2016 11:15:25 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 4/12/2016 11:13:17 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -45,7 +46,7 @@ end as [MonthName]
 ,NetworkName,MarketName,f.Accountid,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
-,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,f.[Platform],case when f.platform='TTWEB' then tc.Name else c.CompanyName end as CompanyName
+,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,f.[Platform],case when f.platform='TTWEB' then tc.companyname else c.CompanyName end as CompanyName
  from (select * from dbo.Fills 
  --where AccountId<>'C100271'
  ) F
@@ -60,7 +61,7 @@ left join
 (select distinct Country, Region from RegionMap)R
 on u.CountryCode=r.Country
 Left join (select distinct companyId, companyname from Company) C on f.CompanyId=c.CompanyId
-left join ( select distinct companyId, name from chisql20.mess.dbo.companies) TC on f.CompanyId=tc.companyid
+left join ( select distinct companyId, companyname from dbo.ttcompanies) TC on f.CompanyId=tc.companyid
 
 )Q
 --where AccountId not in ('C100271')
@@ -70,6 +71,7 @@ group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeNam
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
  FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform],CompanyName
+
 
 
 
