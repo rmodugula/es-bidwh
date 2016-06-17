@@ -1,15 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 5/5/2016 2:14:47 PM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 6/16/2016 2:50:35 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
 
 
 
@@ -36,7 +33,8 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		Region,
 		[city],
 		[State], 
-		Country, 
+		MonthlyBillingData.Country, 
+		R.CountryName,
 		BranchName as Branch, 
 		[Action] 
 		--, SUM(case when (isnull(BilledAmount,0) = 0 ) then 0 else isnull(LicenseCount,0) end) AS LicenseCount --and [source]=0
@@ -52,12 +50,17 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 	left join Account on MonthlyBillingData.AccountId = Account.Accountid	--left join Account on MonthlyBillingData.CrmId = Account.CrmId
 	left join Branch on MonthlyBillingData.BranchId = Branch.BranchId
 	Left Join Network N on MonthlyBillingData.AccountId=N.AccountId
+	Left Join (SELECT distinct [Country],[CountryName] FROM [BIDW].[dbo].[RegionMap]
+                 where CountryName is not null)R
+			  on MonthlyBillingData.Country=R.Country
 	where MonthlyBillingData.ProductSku<>0
 	and product.ProductCategoryId<>'PrePay'
   	GROUP BY --Id, 
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
-	AdditionalInfo, Region, City,[State], Country, 	BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
+	AdditionalInfo, Region, City,[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
 	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC
+
+
 
 
 
