@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 6/16/2016 2:50:35 PM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 6/20/2016 10:21:26 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -11,10 +11,12 @@ GO
 
 
 
+
 ALTER view [dbo].[MonthlyBillingDataAggregate] as
 	SELECT 
 		Month, 
-		Year, 		
+		Year, 
+		cast(str(Month)+'-'+str(1)+'-'+str(Year) as Date) As Date,		
 		MonthlyBillingData.CrmId as CrmId, 
 		MonthlyBillingData.Accountid,
 		isnull(Account.AccountName,'Unassigned') as AccountName, 
@@ -59,6 +61,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
 	AdditionalInfo, Region, City,[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
 	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC
+
 
 
 
