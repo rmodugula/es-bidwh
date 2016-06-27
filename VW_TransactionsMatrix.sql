@@ -1,12 +1,13 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 4/12/2016 11:13:17 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 6/27/2016 11:24:30 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -22,7 +23,7 @@ select Year,Month,MonthName,UserName,FullName,TransactionDate,case when Exchange
 ,case when platform='TTWEB' then isnull(AccountName,companyname) else AccountName end as AccountName,
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus,
-SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags
+SUM(fills) as Fills,sum(Contracts) as Contracts,sum(Volume) as Volume,FixAdapterName,OpenClose,OrderFlags
 ,LastOrderSource,
 FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,[Platform] from 
 (
@@ -44,7 +45,7 @@ when 12 then 'Dec'
 end as [MonthName]
 ,F.UserName,U.FullName,TransactionDate,MarketName as ExchangeName,E.ExchangeFlavor
 ,NetworkName,MarketName,f.Accountid,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
-,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
+,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,Volume,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
 ,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,f.[Platform],case when f.platform='TTWEB' then tc.companyname else c.CompanyName end as CompanyName
  from (select * from dbo.Fills 
@@ -71,6 +72,7 @@ group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeNam
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
  FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform],CompanyName
+
 
 
 
