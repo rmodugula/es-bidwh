@@ -1,12 +1,13 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 6/20/2016 10:21:26 AM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 7/14/2016 10:31:46 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -31,6 +32,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		isnull(Product.ProductCategoryName,'Unassigned') as ProductCategoryName,
 		isnull(Product.ProductSubGroup,'Unassigned') as ProductSubGroup,
 		SUM(isnull(BilledAmount,0)) AS BilledAmount, 
+		SUM(isnull(TotalAmount,0)) AS 'BilledAmount+Tax', 
 		AdditionalInfo, 
 		Region,
 		[city],
@@ -61,6 +63,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
 	AdditionalInfo, Region, City,[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
 	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC
+
 
 
 
