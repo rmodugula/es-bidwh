@@ -1,14 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 7/14/2016 10:31:46 AM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 7/28/2016 11:30:26 AM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
 
 
 
@@ -34,7 +32,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		SUM(isnull(BilledAmount,0)) AS BilledAmount, 
 		SUM(isnull(TotalAmount,0)) AS 'BilledAmount+Tax', 
 		AdditionalInfo, 
-		Region,
+		case when MonthlyBillingData.Region in ('','None') or MonthlyBillingData.Region is null then R.Region else MonthlyBillingData.Region END as Region,
 		[city],
 		[State], 
 		MonthlyBillingData.Country, 
@@ -54,15 +52,17 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 	left join Account on MonthlyBillingData.AccountId = Account.Accountid	--left join Account on MonthlyBillingData.CrmId = Account.CrmId
 	left join Branch on MonthlyBillingData.BranchId = Branch.BranchId
 	Left Join Network N on MonthlyBillingData.AccountId=N.AccountId
-	Left Join (SELECT distinct [Country],[CountryName] FROM [BIDW].[dbo].[RegionMap]
+	Left Join (SELECT distinct [Country],[CountryName],Region FROM [BIDW].[dbo].[RegionMap]
                  where CountryName is not null)R
 			  on MonthlyBillingData.Country=R.Country
 	where MonthlyBillingData.ProductSku<>0
 	and product.ProductCategoryId<>'PrePay'
   	GROUP BY --Id, 
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
-	AdditionalInfo, Region, City,[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
+	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
 	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC
+
+
 
 
 
