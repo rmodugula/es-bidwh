@@ -1,12 +1,13 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 7/28/2016 11:30:26 AM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 8/1/2016 4:23:55 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -47,6 +48,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		, MasterAccountName , TTChangeType , CreditReason , TTLICENSEFILEID, DataAreaId
 		, ActiveBillableToday, ActiveNonBillableToday
 		, PriceGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,TTUserCompany,MIC
+		, case when productname like '%Transaction%' then TTDESCRIPTION else deliveryname END as UserName
 	FROM MonthlyBillingData
 	left join Product on MonthlyBillingData.ProductSku = Product.ProductSku
 	left join Account on MonthlyBillingData.AccountId = Account.Accountid	--left join Account on MonthlyBillingData.CrmId = Account.CrmId
@@ -60,7 +62,8 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
   	GROUP BY --Id, 
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
 	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
-	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC
+	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname
+
 
 
 
