@@ -1,14 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 8/16/2016 9:35:18 PM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 8/17/2016 1:00:04 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
 
 
 
@@ -36,7 +34,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		AdditionalInfo, 
 		case when MonthlyBillingData.Region in ('','None') or MonthlyBillingData.Region is null then R.Region else MonthlyBillingData.Region END as Region,
 		[city],
-		[State], 
+		MonthlyBillingData.[State], 
 		MonthlyBillingData.Country, 
 		R.CountryName,
 		BranchName as Branch, 
@@ -51,20 +49,23 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		, PriceGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,TTUserCompany,MIC
 		, case when productname like '%Transaction%' then TTDESCRIPTION else deliveryname END as UserName
 		, TTPassThroughPrice
+		,SalesOffice
 	FROM MonthlyBillingData
 	left join Product on MonthlyBillingData.ProductSku = Product.ProductSku
 	left join Account on MonthlyBillingData.AccountId = Account.Accountid	--left join Account on MonthlyBillingData.CrmId = Account.CrmId
 	left join Branch on MonthlyBillingData.BranchId = Branch.BranchId
 	Left Join Network N on MonthlyBillingData.AccountId=N.AccountId
-	Left Join (SELECT distinct [Country],[CountryName],Region FROM [BIDW].[dbo].[RegionMap]
+	Left Join (SELECT distinct [Country],[CountryName],Region,State,SalesOffice FROM [BIDW].[dbo].[RegionMap]
                  where CountryName is not null)R
-			  on MonthlyBillingData.Country=R.Country
+			  on MonthlyBillingData.Country=R.Country and isnull(nullif(MonthlyBillingData.State,''),'Unassigned')=isnull(nullif(r.[State],''),'Unassigned')
 	where MonthlyBillingData.ProductSku<>0
 	and product.ProductCategoryId<>'PrePay'
   	GROUP BY --Id, 
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
-	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
-	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice
+	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,MonthlyBillingData.[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
+	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice,SalesOffice
+
+
 
 
 
