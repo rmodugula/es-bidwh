@@ -1,12 +1,13 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregateLiveTransactions]    Script Date: 8/16/2016 9:34:26 PM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregateLiveTransactions]    Script Date: 8/16/2016 9:43:59 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -19,7 +20,7 @@ case when pfwcode in (20992,20995,20997,20996,20993) then 'MultiBrokr' when pfwc
 ,Pt.Productsku,pt.[ProductName],ReportingGroup,Screens,pt.ProductCategoryId,pt.[ProductCategoryName] ,pt.ProductSubGroup 
 ,sum(total) as Billedamount,UserId as AdditionalInfo,'' as Region,city, State, I.Country,CountryName,'' as Branch, '' as Action, 1 as Licensecount,0 as NonBillableLicenseCount,
 A.MasterAccountName,'' as TTChangeType, '' as CreditReason, '' as TTLICENSEFILEID,RevenueDestination as DataAreaId,0 as ActiveBillableToday, 0 as ActiveNonBillableToday,
-'' as PriceGroup,RevenueDestination as  TTBillingOnBehalfOf, 'InvoiceLive' as SalesType, '' as NetworkShortName, '' as TTUserCompany,'' as MIC,'' as TTPassThroughPrice
+'' as PriceGroup,RevenueDestination as  TTBillingOnBehalfOf, 'InvoiceLive' as SalesType, '' as NetworkShortName, '' as TTUserCompany,'' as MIC,0 as TTPassThroughPrice
 from chisql20.[Licensing2].[dbo].[InvoiceFillDataCache] I
 Left Join chisql20.[Licensing2].[dbo].[InvoiceConfig] IC on I.InvoiceConfigId=IC.InvoiceConfigId
 Left Join chisql20.[Licensing2].[dbo].[Product] P on I.ProductId=P.ProductId
@@ -44,6 +45,7 @@ Action, LicenseCount, NonBillableLicenseCount, MasterAccountName, TTChangeType, 
 ActiveNonBillableToday, PriceGroup, TTBillingOnBehalfOf, SalesType, NetworkShortName, TTUserCompany, MIC,TTPassThroughPrice
  from [dbo].[MonthlyBillingDataAggregate]
 where SalesType<>'InvoiceProj'
+
 
 
 
