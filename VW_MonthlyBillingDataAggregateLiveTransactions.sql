@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregateLiveTransactions]    Script Date: 8/17/2016 1:00:19 PM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregateLiveTransactions]    Script Date: 8/22/2016 10:54:46 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -17,7 +17,7 @@ case when pfwcode in (20992,20995,20997,20996,20993) then 'MultiBrokr' when pfwc
 ,Pt.Productsku,pt.[ProductName],ReportingGroup,Screens,pt.ProductCategoryId,pt.[ProductCategoryName] ,pt.ProductSubGroup 
 ,sum(total) as Billedamount,UserId as AdditionalInfo,'' as Region,city, State, I.Country,CountryName,'' as Branch, '' as Action, 1 as Licensecount,0 as NonBillableLicenseCount,
 A.MasterAccountName,'' as TTChangeType, '' as CreditReason, '' as TTLICENSEFILEID,RevenueDestination as DataAreaId,0 as ActiveBillableToday, 0 as ActiveNonBillableToday,
-'' as PriceGroup,RevenueDestination as  TTBillingOnBehalfOf, 'InvoiceLive' as SalesType, '' as NetworkShortName, '' as TTUserCompany,'' as MIC,0 as TTPassThroughPrice,'' as SalesOffice
+'' as PriceGroup,RevenueDestination as  TTBillingOnBehalfOf, 'InvoiceLive' as SalesType, '' as NetworkShortName, '' as TTUserCompany,'' as MIC,0 as TTPassThroughPrice,'' as SalesOffice,InvoiceFillDataCacheId as InvoiceId
 from chisql20.[Licensing2].[dbo].[InvoiceFillDataCache] I
 Left Join chisql20.[Licensing2].[dbo].[InvoiceConfig] IC on I.InvoiceConfigId=IC.InvoiceConfigId
 Left Join chisql20.[Licensing2].[dbo].[Product] P on I.ProductId=P.ProductId
@@ -32,14 +32,14 @@ group by
 Month, Year,A.CrmId,IC.CompanyId,IC.InvoiceName,
 (case when pfwcode in (20992,20995,20997,20996,20993) then 'MultiBrokr' when pfwcode in (20998,20005,10106,20999) then 'Trnx SW' else '' end)
 ,Pt.Productsku,pt.ProductName,ReportingGroup,Screens,pt.ProductCategoryId,pt.[ProductCategoryName] ,pt.ProductSubGroup 
-,UserId,city, State, I.Country,CountryName, A.MasterAccountName,RevenueDestination 
+,UserId,city, State, I.Country,CountryName, A.MasterAccountName,RevenueDestination,InvoiceFillDataCacheId
 
 UNION ALL
 
 Select Month, Year, Date, CrmId, Accountid, AccountName, CustGroup, ProductSku, ProductName, ReportingGroup, Screens, ProductCategoryId,
 ProductCategoryName, ProductSubGroup, BilledAmount, AdditionalInfo, Region, city, State, Country, CountryName, Branch,
 Action, LicenseCount, NonBillableLicenseCount, MasterAccountName, TTChangeType, CreditReason, TTLICENSEFILEID, DataAreaId, ActiveBillableToday,
-ActiveNonBillableToday, PriceGroup, TTBillingOnBehalfOf, SalesType, NetworkShortName, TTUserCompany, MIC,TTPassThroughPrice,SalesOffice
+ActiveNonBillableToday, PriceGroup, TTBillingOnBehalfOf, SalesType, NetworkShortName, TTUserCompany, MIC,TTPassThroughPrice,SalesOffice,InvoiceId
  from [dbo].[MonthlyBillingDataAggregate]
 where SalesType<>'InvoiceProj'
 
