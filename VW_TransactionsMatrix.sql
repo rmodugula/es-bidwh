@@ -1,15 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 6/27/2016 11:24:30 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 9/15/2016 1:40:03 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
 
 
 
@@ -25,7 +22,7 @@ CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus,
 SUM(fills) as Fills,sum(Contracts) as Contracts,sum(Volume) as Volume,FixAdapterName,OpenClose,OrderFlags
 ,LastOrderSource,
-FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,[Platform] from 
+FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,[Platform],NetworkLocation from 
 (
 select 
 F.Year,F.Month, 
@@ -47,7 +44,8 @@ end as [MonthName]
 ,NetworkName,MarketName,f.Accountid,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,Volume,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
-,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,f.[Platform],case when f.platform='TTWEB' then tc.companyname else c.CompanyName end as CompanyName
+,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,Region,f.[Platform],case when f.platform='TTWEB' then tc.companyname else c.CompanyName end as CompanyName,
+NetworkLocation
  from (select * from dbo.Fills 
  --where AccountId<>'C100271'
  ) F
@@ -71,7 +69,9 @@ group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeNam
  CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags, 
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
- FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform],CompanyName
+ FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform],CompanyName,NetworkLocation
+
+
 
 
 

@@ -1,15 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 4/12/2016 11:12:44 AM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 9/15/2016 1:51:39 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
 
 
 
@@ -23,7 +20,7 @@ select Year,Month,MonthName,count(UserName) as NumberOfTraders,case when Exchang
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus
 SUM(fills) as Fills,sum(Contracts) as Contracts,FixAdapterName,OpenClose,OrderFlags
-,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,Region,[Platform]
+,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId,IsBillable,MDT,FunctionalityArea,Region,[Platform],NetworkLocation
 --,CustomField1,CustomField2,CustomField3 
 from 
 (
@@ -47,7 +44,7 @@ end as [MonthName]
 ,NetworkName,MarketName,f.AccountId,A.MasterAccountName,A.AccountName,U.CountryCode,P.ProductName as AXProductName
 ,ProductType,F.ProductName,FillType,FillStatus,Fills as Fills,Contracts,FixAdapterName,OpenClose
 ,OrderFlags,LastOrderSource,FirstOrderSource,OrderSourceHistory,FillCategoryId
-,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,region,f.[Platform],case when f.platform='TTWEB' then tc.companyname else c.CompanyName end as CompanyName
+,IsBillable,MDT,FunctionalityArea,CustomField1,CustomField2,CustomField3,region,f.[Platform],case when f.platform='TTWEB' then tc.companyname else c.CompanyName end as CompanyName,NetworkLocation
  from (select * from dbo.Fills) F
 left join dbo.Exchange E on F.ExchangeId=E.ExchangeId
 left join dbo.Account A on F.AccountId=A.Accountid
@@ -64,12 +61,13 @@ Left join (select distinct companyId, companyname from Company) C on f.CompanyId
 left join ( select distinct companyId, companyname from dbo.ttcompanies) TC on f.CompanyId=tc.companyid
 )Q
  --where AccountId<>'C100271'
---where YEAR=2014
+--where YEAR=2014 and month=8
 group by Year, Month, MonthName,ExchangeName,ExchangeFlavor, NetworkName, MarketName, MasterAccountName, AccountName,
 CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags, 
 --ProductType, ProductName, FillType, FillStatus
-LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform],CompanyName
+LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform],CompanyName,NetworkLocation
 --, CustomField1, CustomField2, CustomField3
+
 
 
 
