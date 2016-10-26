@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_RevenueImpactSSO]    Script Date: 01/22/2014 13:24:41 ******/
+/****** Object:  View [dbo].[VW_RevenueImpactSSO]    Script Date: 10/26/2016 4:55:55 PM ******/
 SET ANSI_NULLS ON
 GO
 
