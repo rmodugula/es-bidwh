@@ -1,12 +1,13 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 8/22/2016 10:53:09 AM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 10/27/2016 2:19:14 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -44,6 +45,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		--, SUM(case when (isnull(BilledAmount,0) = 0 ) then 0 else isnull(LicenseCount,0) end) AS LicenseCount --and [source]=0
 		--, SUM( isnull(LicenseCount,0) ) as LicenseCount		
 		--, BillableLicenseCount , NonBillableLicenseCount
+		, SUM( isnull(LicenseCount, 0) ) as Fills 
 		, SUM( isnull(BillableLicenseCount, 0) ) as LicenseCount --BillableLicenseCount
 		, SUM( isnull(NonBillableLicenseCount, 0) ) as NonBillableLicenseCount
 		, MasterAccountName , TTChangeType , CreditReason , TTLICENSEFILEID, DataAreaId
@@ -68,6 +70,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
 	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,MonthlyBillingData.[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
 	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice,SalesOffice,InvoiceId
+
 
 
 
