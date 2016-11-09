@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 9/15/2016 1:40:03 PM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 11/9/2016 1:22:50 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,12 +12,13 @@ GO
 
 
 
+
 ALTER VIEW [dbo].[VW_TransactionsMatrix] 
 as
 
 select Year,Month,MonthName,UserName,FullName,TransactionDate,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName
 ,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,case when platform='TTWEB' then isnull(MasterAccountName,companyname) else MasterAccountName end as MasterAccountName
-,case when platform='TTWEB' then isnull(AccountName,companyname) else AccountName end as AccountName,
+,case when platform='TTWEB' then isnull(AccountName,companyname) else AccountName end as AccountName,AccountId,
 CountryCode,AXProductName,
 --ProductType,ProductName,FillType,FillStatus,
 SUM(fills) as Fills,sum(Contracts) as Contracts,sum(Volume) as Volume,FixAdapterName,OpenClose,OrderFlags
@@ -65,11 +66,12 @@ left join ( select distinct companyId, companyname from dbo.ttcompanies) TC on f
 )Q
 --where AccountId not in ('C100271')
 --where YEAR=2014 and MONTH=9
-group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeName,ExchangeFlavor, NetworkName, MarketName, MasterAccountName, AccountName,
+group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeName,ExchangeFlavor, NetworkName, MarketName, MasterAccountName, AccountName,AccountId,
  CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags, 
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
  FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform],CompanyName,NetworkLocation
+
 
 
 
