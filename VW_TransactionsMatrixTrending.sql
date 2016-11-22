@@ -1,12 +1,16 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 9/15/2016 1:51:39 PM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrixTrending]    Script Date: 11/22/2016 4:10:29 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
+
+
+
 
 
 
@@ -52,8 +56,16 @@ left join dbo.Product P on F.AxProductId=P.ProductSku
 left join dbo.Network N on F.NetworkId=N.NetworkId
 Left join [BIDW].[dbo].[Market] M
 on f.MarketId=m.MarketID and f.platform=m.platform
-left join (select distinct Username,FullName,Accountid,CountryCode,Platform,CustomField1,CustomField2,CustomField3 from dbo.[user] 
-where YEAR=YEAR(getdate()) and MONTH=Month(getdate())) U on F.UserName=U.UserName and F.AccountId=U.AccountId and f.platform=u.platform
+left join (
+select * from 
+(
+select distinct year, Month, Username,UserId,FullName,Accountid,CountryCode,Platform,CustomField1,CustomField2,CustomField3
+,row_number() over (partition by year, Month, Username,UserId,FullName,CountryCode,Accountid,Platform order by CustomField1 desc,CustomField2 desc,CustomField3 desc) as rowfilter 
+from dbo.[user]
+)uf
+where rowfilter=1
+) U 
+on f.year=u.year and f.Month=u.Month and F.UserName=U.UserName and F.AccountId=U.AccountId and f.Platform=u.platform
 left join 
 (select distinct Country, Region from RegionMap)R
 on u.CountryCode=r.Country
@@ -67,6 +79,10 @@ CountryCode, AXProductName,FixAdapterName, OpenClose, OrderFlags,
 --ProductType, ProductName, FillType, FillStatus
 LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT,Region, FunctionalityArea,[Platform],CompanyName,NetworkLocation
 --, CustomField1, CustomField2, CustomField3
+
+
+
+
 
 
 
