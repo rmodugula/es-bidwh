@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 11/9/2016 1:22:50 PM ******/
+/****** Object:  View [dbo].[VW_TransactionsMatrix]    Script Date: 11/22/2016 4:08:17 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -13,10 +13,15 @@ GO
 
 
 
+
+
+
 ALTER VIEW [dbo].[VW_TransactionsMatrix] 
 as
 
-select Year,Month,MonthName,UserName,FullName,TransactionDate,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName
+select rtrim(cast(transactiondate as char(10))+Username+AccountId+rtrim(cast(LastOrderSource as char(10)))+rtrim(cast(firstOrderSource as char(10)))++rtrim(cast(OrderSourceHistory as char(20)))+IsBillable)
+as ID,
+Year,Month,MonthName,UserName,FullName,TransactionDate,case when ExchangeName='CBOT' then 'CME' else ExchangeName end as ExchangeName,ExchangeFlavor,NetworkName
 ,case when MarketName='CBOT' then 'CME' else MarketName end as MarketName,case when platform='TTWEB' then isnull(MasterAccountName,companyname) else MasterAccountName end as MasterAccountName
 ,case when platform='TTWEB' then isnull(AccountName,companyname) else AccountName end as AccountName,AccountId,
 CountryCode,AXProductName,
@@ -55,7 +60,15 @@ left join dbo.Account A on F.AccountId=A.Accountid
 left join dbo.Product P on F.AxProductId=P.ProductSku
 left join dbo.Network N on F.NetworkId=N.NetworkId
 left join [BIDW].[dbo].[Market] M on F.MarketId=M.MarketID and f.platform=m.platform
-left join (select distinct year, Month, Username,FullName,Accountid,CountryCode,Platform,CustomField1,CustomField2,CustomField3 from dbo.[user]) U 
+left join (
+select * from 
+(
+select distinct year, Month, Username,UserId,FullName,Accountid,CountryCode,Platform,CustomField1,CustomField2,CustomField3
+,row_number() over (partition by year, Month, Username,UserId,FullName,CountryCode,Accountid,Platform order by CustomField1 desc,CustomField2 desc,CustomField3 desc) as rowfilter 
+from dbo.[user]
+)uf
+where rowfilter=1
+) U 
 on f.year=u.year and f.Month=u.Month and F.UserName=U.UserName and F.AccountId=U.AccountId and f.Platform=u.platform
 left join 
 (select distinct Country, Region from RegionMap)R
@@ -71,6 +84,9 @@ group by Year, Month, MonthName, UserName, FullName,TransactionDate, ExchangeNam
  --ProductType, ProductName, FillType, FillStatus,
  LastOrderSource, FirstOrderSource, OrderSourceHistory, FillCategoryId, IsBillable, MDT, 
  FunctionalityArea, CustomField1, CustomField2, CustomField3,Region,[Platform],CompanyName,NetworkLocation
+
+
+
 
 
 
