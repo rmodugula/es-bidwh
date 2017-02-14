@@ -1,15 +1,12 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 10/27/2016 2:19:14 PM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 2/14/2017 3:04:11 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
 
 
 
@@ -46,7 +43,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		--, SUM( isnull(LicenseCount,0) ) as LicenseCount		
 		--, BillableLicenseCount , NonBillableLicenseCount
 		, SUM( isnull(LicenseCount, 0) ) as Fills 
-		, SUM( isnull(BillableLicenseCount, 0) ) as LicenseCount --BillableLicenseCount
+		, SUM( isnull(BillableLicenseCount, 0) )  as LicenseCount --BillableLicenseCount
 		, SUM( isnull(NonBillableLicenseCount, 0) ) as NonBillableLicenseCount
 		, MasterAccountName , TTChangeType , CreditReason , TTLICENSEFILEID, DataAreaId
 		, ActiveBillableToday, ActiveNonBillableToday
@@ -55,6 +52,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		, TTPassThroughPrice
 		,isnull(BranchName,SalesOffice) as SalesOffice
 		,InvoiceId
+		,TTUserId
 	FROM MonthlyBillingData
 	left join Product on MonthlyBillingData.ProductSku = Product.ProductSku
 	left join Account on MonthlyBillingData.AccountId = Account.Accountid	--left join Account on MonthlyBillingData.CrmId = Account.CrmId
@@ -69,7 +67,14 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
   	GROUP BY --Id, 
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
 	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,MonthlyBillingData.[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
-	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice,SalesOffice,InvoiceId
+	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice,SalesOffice,InvoiceId,TTUserId
+
+
+
+
+
+
+
 
 
 
