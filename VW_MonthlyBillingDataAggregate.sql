@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 2/14/2017 3:04:11 PM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 2/22/2017 10:18:59 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -32,7 +32,8 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		SUM(isnull(BilledAmount,0)) AS BilledAmount, 
 		SUM(isnull(TotalAmount,0)) AS 'BilledAmount+Tax', 
 		AdditionalInfo, 
-		case when MonthlyBillingData.Region in ('','None') or MonthlyBillingData.Region is null then R.Region else MonthlyBillingData.Region END as Region,
+		MonthlyBillingData.Region,
+		--case when MonthlyBillingData.Region in ('','None') or MonthlyBillingData.Region is null then R.Region else MonthlyBillingData.Region END as Region,
 		[city],
 		MonthlyBillingData.[State], 
 		MonthlyBillingData.Country, 
@@ -45,29 +46,37 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		, SUM( isnull(LicenseCount, 0) ) as Fills 
 		, SUM( isnull(BillableLicenseCount, 0) )  as LicenseCount --BillableLicenseCount
 		, SUM( isnull(NonBillableLicenseCount, 0) ) as NonBillableLicenseCount
-		, MasterAccountName , TTChangeType , CreditReason , TTLICENSEFILEID, DataAreaId
+		, Account.MasterAccountName , TTChangeType , CreditReason , TTLICENSEFILEID, DataAreaId
 		, ActiveBillableToday, ActiveNonBillableToday
 		, PriceGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,TTUserCompany,MIC
 		, case when productname like '%Transaction%' then TTDESCRIPTION else deliveryname END as UserName
 		, TTPassThroughPrice
-		,isnull(BranchName,SalesOffice) as SalesOffice
+		--,isnull(BranchName,SalesOffice) as SalesOffice
+		,BranchName as SalesOffice
 		,InvoiceId
 		,TTUserId
+		,SalesManager
+		,CustomerSuccessManager
 	FROM MonthlyBillingData
 	left join Product on MonthlyBillingData.ProductSku = Product.ProductSku
 	left join Account on MonthlyBillingData.AccountId = Account.Accountid	--left join Account on MonthlyBillingData.CrmId = Account.CrmId
-	left join Branch on MonthlyBillingData.BranchId = Branch.BranchId
+	left join Branch on (case when MonthlyBillingData.BranchId =25 then 12 else MonthlyBillingData.BranchId END)= Branch.BranchId
 	Left Join Network N on MonthlyBillingData.AccountId=N.AccountId
 	Left Join (SELECT distinct [Country],[CountryName],Region,case when country<>'US' then '-' else State end as State,SalesOffice FROM [BIDW].[dbo].[RegionMap]
                  where CountryName is not null)R
 			  on MonthlyBillingData.Country=R.Country 
 			  and (case when MonthlyBillingData.country<>'US' then '-' else isnull(nullif(MonthlyBillingData.State,''),'Unassigned') end)=isnull(nullif(r.[State],''),'Unassigned')
+	left join [BIDW].[dbo].[TTCoverageMappings] T -------- Added this code to get SalesManagers and CS Managers mapped for every customer and salesoffice
+	on Account.MasterAccountName=t.MasterAccountName and Branch.BranchName=t.SalesOffice
 	where MonthlyBillingData.ProductSku<>0
 	and product.ProductCategoryId<>'PrePay'
   	GROUP BY --Id, 
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
-	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,MonthlyBillingData.[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
-	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice,SalesOffice,InvoiceId,TTUserId
+	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,MonthlyBillingData.[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], Account.MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
+	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice,InvoiceId,TTUserId
+	,SalesManager,CustomerSuccessManager
+
+
 
 
 
