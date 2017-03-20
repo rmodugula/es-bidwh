@@ -1,12 +1,15 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 2/22/2017 10:18:59 AM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 3/20/2017 4:13:39 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
+
+
 
 
 
@@ -32,6 +35,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		SUM(isnull(BilledAmount,0)) AS BilledAmount, 
 		SUM(isnull(TotalAmount,0)) AS 'BilledAmount+Tax', 
 		AdditionalInfo, 
+		TTdescription,
 		MonthlyBillingData.Region,
 		--case when MonthlyBillingData.Region in ('','None') or MonthlyBillingData.Region is null then R.Region else MonthlyBillingData.Region END as Region,
 		[city],
@@ -57,6 +61,7 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		,TTUserId
 		,SalesManager
 		,CustomerSuccessManager
+		,TTID,TTIDEmail
 	FROM MonthlyBillingData
 	left join Product on MonthlyBillingData.ProductSku = Product.ProductSku
 	left join Account on MonthlyBillingData.AccountId = Account.Accountid	--left join Account on MonthlyBillingData.CrmId = Account.CrmId
@@ -74,7 +79,10 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
 	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,MonthlyBillingData.[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], Account.MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
 	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice,InvoiceId,TTUserId
-	,SalesManager,CustomerSuccessManager
+	,SalesManager,CustomerSuccessManager,TTdescription,TTID,TTIDEmail
+
+
+
 
 
 
