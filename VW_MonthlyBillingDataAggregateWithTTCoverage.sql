@@ -1,7 +1,7 @@
 USE [BIDW]
 GO
 
-/****** Object:  View [dbo].[MonthlyBillingDataAggregate]    Script Date: 7/12/2017 9:53:13 AM ******/
+/****** Object:  View [dbo].[MonthlyBillingDataAggregateWithTTCoverage]    Script Date: 7/12/2017 10:01:08 AM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -12,13 +12,15 @@ GO
 
 
 
-ALTER view [dbo].[MonthlyBillingDataAggregate] as
+
+
+ALTER view [dbo].[MonthlyBillingDataAggregateWithTTCoverage] as
 	SELECT 
 		Month, 
 		Year, 
 		cast(concat(month,'-','01','-',year) as date) as Date,
 		--cast(str(Month)+'-'+str(1)+'-'+str(Year) as Date) As Date,		
-		MonthlyBillingData.CrmId as CrmId, 
+		lower(MonthlyBillingData.CrmId) as CrmId, 
 		MonthlyBillingData.Accountid,
 		isnull(Account.AccountName,'Unassigned') as AccountName, 
 		CustGroup,
@@ -58,8 +60,10 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
 		,case when MonthlyBillingData.branchid=90 then 'Office-London' else BranchName END as SalesOffice ----moving all Indian invoices to Sales Office in London.
 		,InvoiceId
 		,TTUserId
-		--,SalesManager
-		--,CustomerSuccessManager
+		,SalesMD
+		,CustomerSuccessLead
+		,isnull(CustomerSuccessManager,CustomerSuccessLead) as CustomerSuccessManager
+		,SalesManager
 		,TTID,TTIDEmail
 	FROM MonthlyBillingData
 	left join Product on MonthlyBillingData.ProductSku = Product.ProductSku
@@ -70,21 +74,28 @@ ALTER view [dbo].[MonthlyBillingDataAggregate] as
                  where CountryName is not null)R
 			  on MonthlyBillingData.Country=R.Country 
 			  and (case when MonthlyBillingData.country<>'US' then '-' else isnull(nullif(MonthlyBillingData.State,''),'Unassigned') end)=isnull(nullif(r.[State],''),'Unassigned')
-	--Left Join 
-	--( 
-	--      SELECT Distinct CrmID,[SalesOffice],PrimarySuccessLead as CustomerSuccessManager,SalesMD as SalesManager
- --          FROM [BIDW].[dbo].[TTCoverageMappings]
- --          where crmid is not null
-	--) CS ------- Added this code to get SalesManagers and CS Managers mapped for every customer and salesoffice
-	--on Account.CrmId=cs.CRMID and Branch.BranchName=cs.SalesOffice
+	Left Join 
+	( 
+	      SELECT Distinct CrmID,[SalesOffice],PrimarySuccessLead as CustomerSuccessLead,SalesMD,CustomerSuccessManager,SalesManager
+           FROM [BIDW].[dbo].[TTCoverageMappings]
+           where crmid is not null
+	) CS ------- Added this code to get SalesManagers and CS Managers mapped for every customer and salesoffice
+	on Account.CrmId=cs.CRMID and Branch.BranchName=cs.SalesOffice
 	where MonthlyBillingData.ProductSku<>0
 	and product.ProductCategoryId<>'PrePay'
   	GROUP BY --Id, 
   	Month, Year, MonthlyBillingData.CrmId, Account.AccountName, CustGroup, MonthlyBillingData.ProductSku, Product.ProductName, Product.ProductCategoryId, Product.ProductCategoryName,
 	AdditionalInfo, MonthlyBillingData.Region,R.Region,City,MonthlyBillingData.[State], MonthlyBillingData.Country,R.CountryName,BranchName, [Action], Account.MasterAccountName, TTChangeType , CreditReason , TTLICENSEFILEID --,  BillableLicenseCount , NonBillableLicenseCount
 	, DataAreaId, ActiveBillableToday, ActiveNonBillableToday, PriceGroup,ProductSubGroup,TTBillingOnBehalfOf,SalesType,NetworkShortName,MonthlyBillingData.Accountid,TTUserCompany,ReportingGroup,Screens,MIC,TTDESCRIPTION,deliveryname,TTPassThroughPrice,InvoiceId,TTUserId
-	--,SalesManager,CustomerSuccessManager
-	,TTdescription,TTID,TTIDEmail,MonthlyBillingData.BranchId
+	,SalesManager,SalesMD,CustomerSuccessLead,cs.CustomerSuccessManager,TTdescription,TTID,TTIDEmail,MonthlyBillingData.branchid
+
+
+
+
+
+
+
+
 
 
 
