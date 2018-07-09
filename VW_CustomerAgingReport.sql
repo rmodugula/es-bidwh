@@ -12,12 +12,13 @@
 USE [TT_DYNAX09_PRD]
 GO
 
-/****** Object:  View [dbo].[vw_CustomerAgingReport]    Script Date: 7/9/2018 3:53:27 PM ******/
+/****** Object:  View [dbo].[vw_CustomerAgingReport]    Script Date: 7/9/2018 3:54:26 PM ******/
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 
 
@@ -37,10 +38,10 @@ MasterOutStandingAmount,
 case when CompanyAccountId='TTBR' then (MasterOutStandingAmount/(ENDOFDAYRATE/10)) 
 else MasterOutStandingAmount end as MasterOutStandingAmountUSD, DueDate,
  TransactionDate, CompanyAccountId, TTInvoiceBilled, TransactionTypeId, TTCRMID, TransactionType, CompanyAccountName,
- PrimarySuccessLead, CustomerGroup from 
+ PrimarySuccessLead, CustomerGroup,OrgType,ClientTier,ClientType from 
 (
 select TM.MasterAccountName as MasterAccountName,Q.*,ENUMITEMNAME as TransactionType
-,D.Name as CompanyAccountName,PrimarySuccessLead,CustomerGroup
+,D.Name as CompanyAccountName,PrimarySuccessLead,CustomerGroup,OrgType,ClientTier,ClientType
 from
 (
 SELECT Name as CompanyName,CUSTTRANSOPEN.ACCOUNTNUM as BillingAccountId
@@ -70,11 +71,11 @@ Select Distinct AccountId,MasterAccountName,CustomerGroup from chisql12.bidw.dbo
 on Q.BillingAccountId=TM.accountid
 Left Join 
 (
-Select CrmId,PrimarySuccessLead from
+Select CrmId,isnull(PrimarySuccessLead,customersuccessmanager) as PrimarySuccessLead,OrgType,ClientTier,ClientType from
 (
-SELECT Distinct [MasterAccountName],[CrmId],PrimarySuccessLead
-,row_number() over (partition by crmid order by PrimarySuccessLead desc ) as rowid
-FROM chisql12.[BIDW].[dbo].[TTCoverageMappings]
+SELECT Distinct [MasterAccountName],[CrmId],orgtype,clienttier,clienttype,PrimarySuccessLead,customersuccessmanager
+,row_number() over (partition by crmid order by PrimarySuccessLead desc,customersuccessmanager desc ) as rowid
+FROM chisql12.[BIDW].[dbo].[TTCoverageMappings] TC left join chisql12.Synap.dbo.organization o on tc.orgid=o.id
 )g where rowid=1
 )TTC on Q.TTCRMID=TTC.Crmid
 where tm.MasterAccountName not like '%Trading Technologies%'
