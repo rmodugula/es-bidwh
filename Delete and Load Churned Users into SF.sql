@@ -28,8 +28,12 @@ left join
 (
 select distinct Id,Name from salesforce...[user] where isactive='true'
 )U on cm.customersuccessmanager=U.Name
-where year=2019 and month=4 and churntype='core' and cancels>0
+where year=2019 and month=6 and churntype='core' and cancels>0
 and am.id is not null
 order by deliveryname
 
 
+
+delete salesforce...churn__c
+--select * from  salesforce...churn__c
+where [ChurnDate__c]='06/01/2019'
