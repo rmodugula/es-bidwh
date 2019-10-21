@@ -8,16 +8,17 @@
 --select id,* from salesforce...Account
 --where crm_id__c='b6ca5f95-2a2c-48f2-a57a-b49f1f80b783'
 
+select * from salesforce...churn__c
 
 
 ------------------------Delete and load churned users into SF---------------------
 --delete salesforce...churn__c
 Insert into salesforce...churn__c
 ([Account__c],[ChurnDate__c],[CurrencyIsoCode],[Email__c],[Name],[Office__c],[OwnerId],ReasonForLeaving__c
-,[UserCompany__c],[UserGroup__c])
+,[UserCompany__c],[UserGroup__c],UserName__c,Platform__c)
 
 select distinct am.id,DATEADD(DAY,1,EOMONTH(Date,-1)) as Date,'USD',email,deliveryname,salesoffice,U.Id as ownerid,
-reasonforleaving ,usercompany,usergroup 
+reasonforleaving ,usercompany,usergroup,UserName,Platform
 from chisql12.bidw.dbo.churnedusersbymonth CM
 left join
 (
@@ -28,8 +29,14 @@ left join
 (
 select distinct Id,Name from salesforce...[user] where isactive='true'
 )U on cm.customersuccessmanager=U.Name
-where year=2019 and month=6 and churntype='core' and cancels>0
+where year=2019 and month=9 and churntype='core' and cancels>0
 and am.id is not null
+and deliveryname not in 
+(
+select distinct name from salesforce...churn__c
+where [ChurnDate__c]='2019-09-01'
+)
+
 order by deliveryname
 
 
