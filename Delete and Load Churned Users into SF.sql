@@ -36,7 +36,6 @@ and deliveryname not in
 select distinct name from salesforce...churn__c
 where [ChurnDate__c]='2019-09-01'
 )
-
 order by deliveryname
 
 
